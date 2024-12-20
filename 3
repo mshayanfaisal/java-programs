@@ -1,0 +1,75 @@
+import java.io.*;
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class StudentManagementSystem {
+    private static String[][] students = {
+        {"2301", "John", "Doe", "john.doe@example.com", "1234567890"},
+        {"2302", "Jane", "Smith", "jane.smith@example.com", "0987654321"},
+        {"2303", "Alice", "Brown", "alice.brown@example.com", "1231231234"},
+        {"2304", "Bob", "Johnson", "bob.johnson@example.com", "9879879876"}
+    };
+
+    public static void main(String[] args) {
+        // Step 2: Store sorted data in CSV format
+        storeDataInCSV("students.csv");
+
+        // Step 3: Retrieve and print data from file
+        retrieveAndPrintData("students.csv");
+
+        // Step 4: Search for a specific student
+        String firstName = "John";
+        String lastName = "Doe";
+        searchStudent(firstName, lastName);
+    }
+
+    public static void storeDataInCSV(String fileName) {
+        // Sort the student data by first name and then last name
+        Arrays.sort(students, new Comparator<String[]>() {
+            @Override
+            public int compare(String[] s1, String[] s2) {
+                int firstNameCompare = s1[1].compareTo(s2[1]);
+                if (firstNameCompare != 0) {
+                    return firstNameCompare;
+                } else {
+                    return s1[2].compareTo(s2[2]);
+                }
+            }
+        });
+
+        // Write the sorted data to a CSV file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (String[] student : students) {
+                writer.write(String.join(",", student));
+                writer.newLine();
+            }
+            System.out.println("Student data stored in file successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void retrieveAndPrintData(String fileName) {
+        // Read and print the data from the CSV file
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            System.out.println("Student Data:");
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void searchStudent(String firstName, String lastName) {
+        // Perform a linear search to find the student
+        for (String[] student : students) {
+            if (student[1].equals(firstName) && student[2].equals(lastName)) {
+                System.out.println("Student found: " + Arrays.toString(student));
+                return;
+            }
+        }
+        System.out.println("Student not found.");
+    }
+}
