@@ -1,0 +1,163 @@
+import java.io.*;
+import java.util.Arrays;
+
+class Student {
+    String name;
+    String studentID;
+    String address;
+    int[] marks;
+    double GPA;
+    Student next;
+
+    public Student(String name, String studentID, String address, int[] marks, double GPA) {
+        this.name = name;
+        this.studentID = studentID;
+        this.address = address;
+        this.marks = marks;
+        this.GPA = GPA;
+        this.next = null;
+    }
+
+    @Override
+    public String toString() {
+        return name + "," + studentID + "," + address + "," + Arrays.toString(marks) + "," + GPA;
+    }
+}
+
+class LinkedList {
+    Student head;
+
+    public void add(Student student) {
+        if (head == null) {
+            head = student;
+        } else {
+            Student current = head;
+            while (current.next != null) {
+                current = current.next;
+            }
+            current.next = student;
+        }
+    }
+
+    public void sort() {
+        if (head == null) return;
+
+        Student current = head, index = null;
+        String tempName, tempID, tempAddress;
+        int[] tempMarks;
+        double tempGPA;
+
+        while (current != null) {
+            index = current.next;
+            while (index != null) {
+                if (current.studentID.compareTo(index.studentID) > 0) {
+                    // Swap data
+                    tempName = current.name;
+                    tempID = current.studentID;
+                    tempAddress = current.address;
+                    tempMarks = current.marks;
+                    tempGPA = current.GPA;
+
+                    current.name = index.name;
+                    current.studentID = index.studentID;
+                    current.address = index.address;
+                    current.marks = index.marks;
+                    current.GPA = index.GPA;
+
+                    index.name = tempName;
+                    index.studentID = tempID;
+                    index.address = tempAddress;
+                    index.marks = tempMarks;
+                    index.GPA = tempGPA;
+                }
+                index = index.next;
+            }
+            current = current.next;
+        }
+    }
+
+    public void saveToFile(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            Student current = head;
+            while (current != null) {
+                writer.write(current.toString());
+                writer.newLine();
+                current = current.next;
+            }
+            System.out.println("Data saved to file successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadFromFile(String fileName) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            head = null;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                String name = data[0];
+                String studentID = data[1];
+                String address = data[2];
+                int[] marks = Arrays.stream(data[3].replace("[", "").replace("]", "").split(" "))
+                                    .mapToInt(Integer::parseInt)
+                                    .toArray();
+                double GPA = Double.parseDouble(data[4]);
+                add(new Student(name, studentID, address, marks, GPA));
+            }
+            System.out.println("Data loaded from file successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Student search(String studentID) {
+        Student current = head;
+        while (current != null) {
+            if (current.studentID.equals(studentID)) {
+                return current;
+            }
+            current = current.next;
+        }
+        return null;
+    }
+
+    public void display() {
+        Student current = head;
+        while (current != null) {
+            System.out.println(current);
+            current = current.next;
+        }
+    }
+}
+
+public class StudentManagementSystem {
+    public static void main(String[] args) {
+        LinkedList list = new LinkedList();
+        
+        // Add sample students
+        list.add(new Student("Alice", "bscs2302345", "123 Main St", new int[]{85, 90, 78}, 3.8));
+        list.add(new Student("Bob", "bscs2302346", "456 Main St", new int[]{88, 92, 81}, 3.9));
+        list.add(new Student("Charlie", "bscs2302347", "789 Main St", new int[]{75, 85, 80}, 3.7));
+        
+        // Sort by student ID
+        list.sort();
+        
+        // Save to file
+        list.saveToFile("szabist_student_record.txt");
+        
+        // Load from file
+        list.loadFromFile("szabist_student_record.txt");
+        
+        // Display all students
+        list.display();
+        
+        // Search for a student by ID
+        Student student = list.search("bscs2302345");
+        if (student != null) {
+            System.out.println("Student found: " + student);
+        } else {
+            System.out.println("Student not found.");
+        }
+    }
+}
